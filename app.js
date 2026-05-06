@@ -100,9 +100,6 @@ function renderWelcome() {
         <button id="startBtn">Start</button>
       </div>
 
-      <p class="footer-note">
-        Prototype version: currently using mock audio placeholders.
-      </p>
     </div>
   `;
 
