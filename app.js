@@ -262,13 +262,11 @@ function renderEvaluationItem() {
       <div id="evalError" class="notice error hidden"></div>
 
       <div class="button-row">
-        <button class="secondary" id="quitBtn">Save & Quit</button>
         <button id="nextBtn">${currentItemIndex === randomizedItems.length - 1 ? "Finish" : "Next"}</button>
       </div>
     </div>
   `;
 
-  document.getElementById("quitBtn").addEventListener("click", saveProgressAndQuit);
   document.getElementById("nextBtn").addEventListener("click", handleNextItem);
 }
 
@@ -311,44 +309,6 @@ function handleNextItem() {
   } else {
     renderThankYou();
   }
-}
-
-function saveProgressAndQuit() {
-  const payload = {
-    participant,
-    currentItemIndex,
-    totalItems: randomizedItems.length,
-    results,
-    savedAt: new Date().toISOString()
-  };
-
-  try {
-    localStorage.setItem("mos_progress", JSON.stringify(payload));
-  } catch (error) {
-    console.warn("Could not save progress locally:", error);
-  }
-
-  screen.innerHTML = `
-    <div class="card">
-      <h2 class="section-title">Progress Saved</h2>
-      <p class="subtext">
-        Your current progress has been saved in this browser.
-      </p>
-
-      <div class="button-row">
-        <button id="downloadProgressBtn">Download Progress JSON</button>
-        <button class="secondary" id="restartBtn">Return to Home</button>
-      </div>
-    </div>
-  `;
-
-  hideProgress();
-
-  document.getElementById("downloadProgressBtn").addEventListener("click", () => {
-    downloadJSON(payload, `${participant.listenerId}_progress.json`);
-  });
-
-  document.getElementById("restartBtn").addEventListener("click", renderWelcome);
 }
 
 async function submitResultsToBackend(payload) {
