@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Darija TTS MOS Evaluation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <h1>Darija TTS MOS Evaluation</h1>
+      <div id="progressWrapper" class="progress-wrapper hidden">
+        <div class="progress-label">
+          <span id="progressText">Progress</span>
+          <span id="progressCount">0/0</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="screen"></div>
+    </main>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
