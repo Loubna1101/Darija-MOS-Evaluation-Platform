@@ -4,3 +4,4 @@ dist/
 build/
 .vscode/
 data_js_script.py
+*.sql

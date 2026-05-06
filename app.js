@@ -77,7 +77,7 @@ function renderWelcome() {
           <li>Headphones are recommended.</li>
           <li>You will evaluate ${Math.min(ITEMS_PER_PARTICIPANT, evaluationItems.length)} randomly selected sentences.</li>
           <li>For each sample, rate 3 criteria from 1 to 5.</li>
-          <li>The samples are anonymized. You will not see model names. </li>
+          <li>The samples are anonymized. You will not see model names.</li>
         </ul>
       </div>
 
@@ -99,7 +99,6 @@ function renderWelcome() {
       <div class="button-row">
         <button id="startBtn">Start</button>
       </div>
-
     </div>
   `;
 
@@ -323,7 +322,11 @@ function saveProgressAndQuit() {
     savedAt: new Date().toISOString()
   };
 
-  localStorage.setItem("mos_progress", JSON.stringify(payload));
+  try {
+    localStorage.setItem("mos_progress", JSON.stringify(payload));
+  } catch (error) {
+    console.warn("Could not save progress locally:", error);
+  }
 
   screen.innerHTML = `
     <div class="card">
@@ -348,7 +351,27 @@ function saveProgressAndQuit() {
   document.getElementById("restartBtn").addEventListener("click", renderWelcome);
 }
 
-function renderThankYou() {
+async function submitResultsToBackend(payload) {
+  const response = await fetch("/api/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Failed to submit results");
+  }
+
+  return data;
+}
+
+async function renderThankYou() {
+  hideProgress();
+
   const payload = {
     participant,
     totalItems: randomizedItems.length,
@@ -356,36 +379,75 @@ function renderThankYou() {
     submittedAt: new Date().toISOString()
   };
 
-  localStorage.setItem("mos_final_submission", JSON.stringify(payload));
-  hideProgress();
-
   screen.innerHTML = `
     <div class="card">
-      <h2 class="section-title">Thank You</h2>
-      <p class="subtext">
-        Your ratings have been recorded locally in this prototype version.
-      </p>
-
-      <div class="notice success">
-        Total samples rated: <strong>${results.length}</strong>
-      </div>
-
-      <div class="button-row">
-        <button id="downloadBtn">Download Results JSON</button>
-        <button class="secondary" id="restartBtn">Start New Session</button>
-      </div>
-
-      <p class="footer-note">
-        Later, this button will be replaced by automatic submission to a database.
-      </p>
+      <h2 class="section-title">Submitting your responses...</h2>
+      <p class="subtext">Please wait a few seconds. Do not close the page.</p>
     </div>
   `;
 
-  document.getElementById("downloadBtn").addEventListener("click", () => {
-    downloadJSON(payload, `${participant.listenerId}_results.json`);
-  });
+  try {
+    const responseData = await submitResultsToBackend(payload);
 
-  document.getElementById("restartBtn").addEventListener("click", resetExperiment);
+    try {
+      localStorage.setItem("mos_final_submission", JSON.stringify(payload));
+    } catch (error) {
+      console.warn("Could not save final submission locally:", error);
+    }
+
+    screen.innerHTML = `
+      <div class="card">
+        <h2 class="section-title">Thank You</h2>
+        <p class="subtext">
+          Your ratings were submitted successfully.
+        </p>
+
+        <div class="notice success">
+          Total samples rated: <strong>${results.length}</strong><br>
+          Participant ID: <strong>${responseData.participantId}</strong>
+        </div>
+
+        <div class="button-row">
+          <button id="downloadBtn">Download Results JSON</button>
+          <button class="secondary" id="restartBtn">Start New Session</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      downloadJSON(payload, `${participant.listenerId}_results.json`);
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", resetExperiment);
+  } catch (error) {
+    console.error("Submission failed:", error);
+
+    screen.innerHTML = `
+      <div class="card">
+        <h2 class="section-title">Submission Failed</h2>
+        <p class="subtext">
+          We could not submit your ratings to the server.
+        </p>
+
+        <div class="notice error">
+          ${error.message}
+        </div>
+
+        <div class="button-row">
+          <button id="downloadBtn">Download Results JSON</button>
+          <button class="secondary" id="retryBtn">Retry Submission</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      downloadJSON(payload, `${participant.listenerId}_results.json`);
+    });
+
+    document.getElementById("retryBtn").addEventListener("click", () => {
+      renderThankYou();
+    });
+  }
 }
 
 function downloadJSON(data, filename) {
