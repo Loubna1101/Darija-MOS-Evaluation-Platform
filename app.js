@@ -77,7 +77,7 @@ function renderWelcome() {
           <li>Headphones are recommended.</li>
           <li>You will evaluate ${Math.min(ITEMS_PER_PARTICIPANT, evaluationItems.length)} randomly selected sentences.</li>
           <li>For each sample, rate 3 criteria from 1 to 5.</li>
-          <li>The samples are anonymized. You will not see model names.</li>
+          <li>The samples are anonymized. You will not see model names. </li>
         </ul>
       </div>
 
