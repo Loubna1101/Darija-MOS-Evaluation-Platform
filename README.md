@@ -34,20 +34,19 @@
     7   comments TEXT,
     8   submitted_at TEXT
     9 );
-   10
-   11 CREATE TABLE ratings (
-   12   id INTEGER PRIMARY KEY AUTOINCREMENT,
-   13   participant_id TEXT,
-   14   item_id TEXT,
-   15   text TEXT,
-   16   shown_sample_index INTEGER,
-   17   model_id TEXT,
-   18   file TEXT,
-   19   naturalness INTEGER,
-   20   clarity INTEGER,
-   21   moroccan_accent INTEGER,
-   22   timestamp TEXT
-   23 );
+    1 CREATE TABLE ratings (
+    2   id INTEGER PRIMARY KEY AUTOINCREMENT,
+    3   participant_id TEXT,
+    4   item_id TEXT,
+    5   text TEXT,
+    6   shown_sample_index INTEGER,
+    7   model_id TEXT,
+    8   file TEXT,
+    9   naturalness INTEGER,
+    10   clarity INTEGER,
+    11   moroccan_accent INTEGER,
+    12   timestamp TEXT
+    13 );
 
   Hosting
 
